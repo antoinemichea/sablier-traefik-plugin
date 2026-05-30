@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/sablierapp/sablier-traefik-plugin/compare/v1.3.0...v1.3.1) (2026-05-30)
+
+
+### Chores
+
+* **deps:** bump actions/create-github-app-token from 3.1.1 to 3.2.0 ([#45](https://github.com/sablierapp/sablier-traefik-plugin/issues/45)) ([c6c6322](https://github.com/sablierapp/sablier-traefik-plugin/commit/c6c63228454ef7ab30fb0061ece5473520d18e89))
+* **deps:** bump golangci/golangci-lint-action from 9.2.0 to 9.2.1 ([#46](https://github.com/sablierapp/sablier-traefik-plugin/issues/46)) ([741b778](https://github.com/sablierapp/sablier-traefik-plugin/commit/741b778e110fe78a5fea98a74a64235582631e4f))
+
 ## [1.3.0](https://github.com/sablierapp/sablier-traefik-plugin/compare/v1.2.0...v1.3.0) (2026-05-16)
 
 
