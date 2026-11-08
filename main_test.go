@@ -401,6 +401,50 @@ func TestSablierMiddleware_ServeHTTP_FailOpen(t *testing.T) {
 // without the httptrace WroteHeaders callback firing first (issue #29). The fix is that
 // WriteHeader with any non-503 status code sets the responseWriter's ready flag so that
 // subsequent Write calls are not silently discarded.
+// A client that goes away while Sablier is being asked (a browser that leaves
+// the page, a test that aborts) used to get a 500 with "context canceled":
+// nobody read it, but it was logged as a server error with no backend, the
+// same as Sablier being down. It is now logged as Traefik logs a request the
+// client closed, 499, and the backend is not called.
+func TestSablierMiddleware_ClientGoneWhileAskingSablier(t *testing.T) {
+	for _, failOpen := range []bool{false, true} {
+		t.Run(fmt.Sprintf("failOpen=%v", failOpen), func(t *testing.T) {
+			asked := make(chan struct{})
+			slowSablier := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				close(asked)
+				<-r.Context().Done()
+			}))
+			defer slowSablier.Close()
+
+			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				t.Error("the backend must not be called for a client that is gone")
+			})
+			sm, err := New(context.Background(), next, &Config{
+				SablierURL:      slowSablier.URL,
+				Names:           "nginx",
+				SessionDuration: "1m",
+				Dynamic:         &DynamicConfiguration{},
+				FailOpen:        failOpen,
+			}, "middleware")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			ctx, cancel := context.WithCancel(context.Background())
+			go func() {
+				<-asked
+				cancel()
+			}()
+			w := httptest.NewRecorder()
+			sm.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/my-nginx", nil).WithContext(ctx))
+
+			if w.Code != statusClientClosedRequest {
+				t.Fatalf("expected status %d, got %d (%q)", statusClientClosedRequest, w.Code, w.Body.String())
+			}
+		})
+	}
+}
+
 func TestSablierMiddleware_ServeHTTP_SSE(t *testing.T) {
 	t.Run("streams SSE events when session is ready", func(t *testing.T) {
 		// Sablier reports the session as ready.
