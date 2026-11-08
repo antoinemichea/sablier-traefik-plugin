@@ -1,15 +1,16 @@
 # ════════════════════════════════════════════════════════════════════
 # sablier-traefik-plugin (miroir interne) — GitLab CI/CD
 #
-# Fork interne du plugin Traefik Sablier (upstream + fix Set-Cookie,
-# PR upstream : https://github.com/sablierapp/sablier-traefik-plugin/pull/58).
+# Fork interne du plugin Traefik Sablier : upstream v1.4.0 + 499 quand le
+# client est parti (PR upstream : https://github.com/sablierapp/sablier-traefik-plugin/pull/70).
+# Les fix Set-Cookie (#58) et headers du 503 (#60) sont publiés depuis la v1.3.1.
 #
 # 1. test  : go test (les tests de régression du fix en font partie)
 # 2. build : image Kaniko = SOURCES du plugin uniquement (Traefik charge les
 #    plugins en source via Yaegi — l'image sert de véhicule registry interne,
 #    l'initContainer du chart Traefik copie /plugin/ sur la PVC RWX).
 #
-# Sur un tag (ex. v1.3.0-fix.58) → image :<tag> + :latest ; sur main → :latest.
+# Sur un tag (ex. v1.4.0-fix.70) → image :<tag> + :latest ; sur main → :latest.
 # ════════════════════════════════════════════════════════════════════
 
 stages:

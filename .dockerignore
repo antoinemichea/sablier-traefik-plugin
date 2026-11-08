@@ -1,3 +1,4 @@
 .git
 .github
 Containerfile
+.gitlab-ci.yml
